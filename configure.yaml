@@ -1,0 +1,34 @@
+batch_size: 2
+epochs: 100
+lr: 2e-5
+dropout: 0.5
+maxlen: 200
+model_type: 'att_Bilstm_g' #'mvcc_g'# mvcc_bio # att_Bilstm_g # att_Bilstm_elmo
+path_to_outputs: 'out.tsv'
+path_to_input: '/home/akkasi/PycharmProjects/BCRE/bcre/data/data1.tsv'
+Oversmpling: 0
+Folds: 2
+hidden_size: 100
+n_lstm_layers: 2
+bidirectional: True
+n_kernels:
+  - 100
+  - 100
+  - 100
+kernels:
+  - 3
+  - 4
+  - 5
+path_to_pretrainedWE:  '/home/akkasi/PycharmProjects/BCRE/bcre/w2v_glove.6B.100d.txt'
+#'/home/akkasi/pythonProject/fasttext.vec'
+path_to_model_to_be_saved: '.'
+freeze_embedding: True
+vocab_size: 20000
+embed_dim: 100
+num_classes: 3
+bioBertModels:
+  - 'dmis-lab/biobert-v1.1'
+  -  'dmis-lab/biobert-large-cased-v1.1'
+  -  'monologg/biobert_v1.0_pubmed_pmc'
+  -  'monologg/biobert_v1.1_pubmed'
+  -
