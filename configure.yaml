@@ -1,14 +1,14 @@
-batch_size: 2
+batch_size: 32
 epochs: 100
 lr: 2e-5
 dropout: 0.5
 maxlen: 200
-model_type: 'att_Bilstm_g' #'mvcc_g'# mvcc_bio # att_Bilstm_g # att_Bilstm_elmo
+model_type:   'mvcc_biobert'#att_Bilstm' # elmo_Bilstm 'mvcc_g'#'att_Bilstm' #elmo_Bilstm'#'att_Bilstm' # mvcc_biobert
 path_to_outputs: 'out.tsv'
 path_to_input: '/home/akkasi/PycharmProjects/BCRE/bcre/data/data1.tsv'
 Oversmpling: 0
-Folds: 2
-hidden_size: 100
+Folds: 10
+hidden_size: 25
 n_lstm_layers: 2
 bidirectional: True
 n_kernels:
@@ -31,4 +31,5 @@ bioBertModels:
   -  'dmis-lab/biobert-large-cased-v1.1'
   -  'monologg/biobert_v1.0_pubmed_pmc'
   -  'monologg/biobert_v1.1_pubmed'
-  -
+option_file: '/home/akkasi/pythonProject/‌BERT_CNN_TextClassification/elmo_2x4096_512_2048cnn_2xhighway_options.json'
+weight_file: '/home/akkasi/pythonProject/‌BERT_CNN_TextClassification/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5'

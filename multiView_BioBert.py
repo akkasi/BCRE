@@ -21,10 +21,10 @@ class BertClassifier(nn.Module):
     def forward(self, input_ids, attention_masks):
         out = self.bert(input_ids = input_ids, attention_mask = attention_masks)
 
-        last_hidden_state_cls = out[0][:,0,:]
+        last_hidden_state_cls = out[0]
         x = last_hidden_state_cls.unsqueeze(1)
         x = [F.relu(conv(x)).squeeze(3) for conv in self.convs1]
-        x = [F.max_pool1d((i,i.size(2)).squeeze(2) for i in x)]
+        x = [F.max_pool1d(i,i.size(2)).squeeze(2) for i in x]
         x = torch.cat(x,1)
         x = self.dropout(x)
         logits = self.fc1(x)

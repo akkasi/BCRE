@@ -1,49 +1,43 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from allennlp.commands.elmo import ElmoEmbedder
-class ELMo_BiLSTM(nn.Module):
+
+class elmoBilstm(nn.Module):
     def __init__(self,
+            embed_dim = 1024,
             hidden_size = 100,
             n_classes = 3,
             n_lstm_layers = 1,
             dropout = 0.5,
             device = None,
-            bidirectional = True):
-        super(ELMo_BiLSTM, self).__init__()
-        self.elmo =  ElmoEmbedder(
-                options_file='https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json',
-                weight_file='https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5'
-                                    )
+            bidirectional = True,
+            elmo = None
+            ):
+
+        super(elmoBilstm, self).__init__()
+        self.embed_dim = embed_dim
+        self.n_classes = n_classes
         self.hidden_size = hidden_size
         self.n_lstm_layers = n_lstm_layers
-        self.n_classes =n_classes
         self.device = device
+        self.elmo = elmo
+        self.dropout = nn.Dropout(p=dropout)
         self.bidirectional = bidirectional
         self.x = 2 if self.bidirectional else 1
-        self.lstm = nn.LSTM(1024, self.hidden_size, num_layers=self.n_lstm_layers,
+        self.lstm = nn.LSTM(self.embed_dim, self.hidden_size ,num_layers=self.n_lstm_layers,
                             bidirectional=self.bidirectional, batch_first=True)
-        self.fc = nn.Linear(self.hidden_size , self.n_classes)
+        self.fc = nn.Linear(self.hidden_size * self.x ,self.n_classes)
 
-        self.activation_func = nn.ReLU6()
-        self.dropout_l = nn.Dropout(dropout)
+    def forward(self, input_sentences):
+        embeddings_allennlp = self.elmo(input_sentences)
+        input = embeddings_allennlp['elmo_representations'][0]
 
-    def forward(self, sentences):
-
-        elmo_out = self.elmo(sentences)
-        x = elmo_out['elmo_representations'][0]
-        # x = x.transpose(1,2)
-        h = torch.zeros((self.n_lstm_layers * self.x, sentences.size(0), self.hidden_size)).to(self.device)
-        c = torch.zeros((self.n_lstm_layers * self.x, sentences.size(0), self.hidden_size)).to(self.device)
+        h = torch.zeros((self.n_lstm_layers * self.x , input_sentences.size(0), self.hidden_size )).to(self.device)
+        c = torch.zeros((self.n_lstm_layers * self.x , input_sentences.size(0), self.hidden_size  )).to(self.device)
 
         torch.nn.init.xavier_normal_(h)
         torch.nn.init.xavier_normal_(c)
 
-        out, (hidden, cell) = self.lstm(x, (h, c))
+        out, (hidden, cell) = self.lstm(input, (h, c))
 
-
-        x = self.activation_func(hidden[-1])
-        x = self.p1(x)
-        x = self.dropout_l(x)
-        y = self.fc(x)
-        return y
+        logits = self.fc(out[:, -1])
+        return logits

@@ -2,11 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import yaml
-
-
 class mvccGlove(nn.Module):
-
     def __init__(self,
                  pretrained_embedding=None,
                  freeze_embedding=False,

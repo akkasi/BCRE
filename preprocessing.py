@@ -10,8 +10,6 @@ class Preprocessing():
         self.path_to_pretrainedWE = fname
         self.data = df
         self.Max_seq_len = seq_len
-
-
     def tokenize(self):
 
         self.data.text = [word_tokenize(x) for x in (self.data).text.values]
@@ -19,7 +17,6 @@ class Preprocessing():
         tokenized_texts = []
         word2idx = {}
 
-        # Add <pad> and <unk> tokens to the vocabulary
         word2idx['<pad>'] = 0
         word2idx['<unk>'] = 1
 
@@ -78,32 +75,32 @@ class Preprocessing():
                 count += 1
                 embeddings[word2idx[word]] = np.array(tokens[1:], dtype=np.float32)
 
-        # print(f"There are {count} / {len(word2idx)} pretrained vectors found.")
 
         return torch.tensor(embeddings), torch.tensor(embeddings).shape[1]
 
 class bertPreprocessor():
     def __init__(self,bertModel):
-        self.data = None
-        self.tokenizer = BertTokenizer(bertModel,do_lower_case=True)
-        self.input_ids = list()
-        self.attention_masks = list()
+
+        self.tokenizer = BertTokenizer.from_pretrained(bertModel, do_lower_case=True)
+
 
     def encode_data(self,df):
-        self.data = df
-        for sent in self.data.text:
-            encoded_snt = self.tokenizer.encode_plus(
-                text= sent,
-                add_special_tokens= True,
-                max_length= config['maxlen'],
-                pad_to_max_length = True,
-                return_attention_mask= True
-            )
-            self.input_ids.append(encoded_snt.get('input_ids'))
-            self.attention_masks.append(encoded_snt.get('attention_masks'))
-        self.data['input_ids'] = self.input_ids
-        self.data['attention_masks'] = self.attention_masks
-        self.data.reset_index(drop=True, inplace=True)
+
+        tokens = self.tokenizer.batch_encode_plus(
+            df.text.tolist(),
+            max_length=config['maxlen'],
+            add_special_tokens=True,
+            pad_to_max_length=True,
+            truncation=True,
+            return_token_type_ids=False
+        )
+        return tokens
+
+def elmoSentenceTokenize(listOfSentences):
+    results  = []
+    for sentence in listOfSentences:
+        results.append(word_tokenize(sentence))
+    return results
 
 
 

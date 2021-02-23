@@ -1,16 +1,14 @@
 import pandas as pd
 from overSampling import RandomOversampling
-from Preprocessing import *
+from preprocessing import *
 from modelTrainers import *
 from dataLoader import *
 import re, random
 import yaml
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score
-import torch
 from multiView_BioBert import *
-from transformers import BertForSequenceClassification, AdamW,get_linear_schedule_with_warmup, BertConfig
-config_file = open("configure.yaml")
+from transformers import BertForSequenceClassification, AdamW,get_linear_schedule_with_warmup
 config = yaml.load(config_file, Loader=yaml.FullLoader)
 class fineTuning():
     def __init__(self):
@@ -113,7 +111,7 @@ class fineTuning():
 
         bestPerformance = 0
 
-        for pre_model in config['bioBertModels'][0]:
+        for pre_model in config['bioBertModels']:
 
             model = self.createModel(pre_model)
             fscore,_,_ = self.test_model(model)
@@ -123,12 +121,7 @@ class fineTuning():
         print('The best performing model is: '+ self.baseModel)
 
     def initialize_model(self, bertClassifier, epochs=4):
-        """Initialize the Bert Classifier, the optimizer and the learning rate scheduler.
-        """
-        # Instantiate Bert Classifier
-        # bert_classifier = BertClassifier(freeze_bert=True)
 
-        # Tell PyTorch to run the model on GPU
         bertClassifier.to(self.device)
 
         # Create the optimizer
@@ -158,16 +151,3 @@ class fineTuning():
         groundtruth = self.validation.label.values
         self.Evaluate(groundtruth,predictions)
         torch.save(bertClassifier,config['path_to_model_to_be_saved'])
-
-
-
-
-
-
-
-
-
-
-
-
-

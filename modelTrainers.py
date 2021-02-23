@@ -1,11 +1,10 @@
 import time
 import torch
 import numpy as np
-import torch.nn.functional as F
+import gc
+
 def torch_trainer(model, optimizer, train_dataloader, loss_fn, device, epochs, val_dataloader=None ):
-
     best_accuracy = 0
-
     # Start training loop
     print("Start training...\n")
     print(f"{'Epoch':^7} | {'Train Loss':^12} | {'Val Loss':^10} | {'Val Acc':^9} | {'Elapsed':^9}")
@@ -22,9 +21,11 @@ def torch_trainer(model, optimizer, train_dataloader, loss_fn, device, epochs, v
         # Put the model into the training mode
         model.train()
 
-        for b_input_ids, b_labels in train_dataloader:
+        for batch in train_dataloader:
+            b_input_ids, b_labels = batch[0],batch[1]
             # Load batch to GPU
             b_labels = b_labels.type(torch.LongTensor)
+
             b_input_ids, b_labels = b_input_ids.to(device), b_labels.type(torch.LongTensor).to(device)
             # Zero out any previously calculated gradients
             model.zero_grad()
@@ -54,7 +55,7 @@ def torch_trainer(model, optimizer, train_dataloader, loss_fn, device, epochs, v
         if val_dataloader is not None:
             # After the completion of each training epoch, measure the model's
             # performance on our validation set.
-            val_loss, val_accuracy, preds = evaluate(model, val_dataloader,  device, loss_fn = F.cross_entropy())
+            val_loss, val_accuracy, preds = evaluate(model, val_dataloader, device)
 
             # Track the best accuracy
             if val_accuracy > best_accuracy:
@@ -72,6 +73,39 @@ def torch_trainer(model, optimizer, train_dataloader, loss_fn, device, epochs, v
     # return model
 
 def evaluate(model,  val_dataloader, loss_fn, device):
+    model.eval()
+
+    # Tracking variables
+    val_accuracy = []
+    val_loss = []
+    Predictions = []
+    # For each batch in our validation set...
+    for batch in val_dataloader:
+        gc.collect()
+        torch.cuda.empty_cache()
+        # Load batch to GPU
+        b_input_ids, b_labels = batch[0].to(device), batch[1].to(device)
+
+        # Compute logits
+        with torch.no_grad():
+            logits = model(b_input_ids)
+
+        # Compute loss
+        loss = loss_fn(logits, b_labels)
+        val_loss.append(loss.item())
+
+        # Get the predictions
+        preds = torch.argmax(logits, dim=1).flatten()
+        Predictions.extend(list(preds))
+        # Calculate the accuracy rate
+        accuracy = (preds == b_labels).cpu().numpy().mean() * 100
+        val_accuracy.append(accuracy)
+
+    # Compute the average accuracy and loss over the validation set.
+    val_loss = np.mean(val_loss)
+    val_accuracy = np.mean(val_accuracy)
+    return val_loss, val_accuracy, Predictions
+def bert_evaluate(model,  val_dataloader, loss_fn, device):
     """After the completion of each training epoch, measure the model's
     performance on our validation set.
     """
@@ -85,12 +119,14 @@ def evaluate(model,  val_dataloader, loss_fn, device):
     Predictions = []
     # For each batch in our validation set...
     for batch in val_dataloader:
+        gc.collect()
+        torch.cuda.empty_cache()
         # Load batch to GPU
-        b_input_ids, b_labels = tuple(t.to(device) for t in batch)
+        b_input_ids, b_attn_mask, b_labels = tuple(t.to(device) for t in batch)
 
         # Compute logits
         with torch.no_grad():
-            logits = model(b_input_ids)
+            logits = model(b_input_ids, b_attn_mask)
 
         # Compute loss
         loss = loss_fn(logits, b_labels)
@@ -98,7 +134,6 @@ def evaluate(model,  val_dataloader, loss_fn, device):
 
         # Get the predictions
         preds = torch.argmax(logits, dim=1).flatten()
-        # print([preds[i].item() for i in preds])
         Predictions.extend(list(preds))
         # Calculate the accuracy rate
         accuracy = (preds == b_labels).cpu().numpy().mean() * 100
@@ -108,8 +143,8 @@ def evaluate(model,  val_dataloader, loss_fn, device):
     val_loss = np.mean(val_loss)
     val_accuracy = np.mean(val_accuracy)
     return val_loss, val_accuracy, Predictions
-
 def bert_trainer(model, train_dataloader, loss_fn,optimizer, scheduler,device, val_dataloader=None, epochs=4, evaluation=False):
+# def bert_trainer(model, train_dataloader, loss_fn, optimizer,device, val_dataloader=None, epochs=4,evaluation=False):
     print("Start training...\n")
     for epoch_i in range(epochs):
 
@@ -175,7 +210,7 @@ def bert_trainer(model, train_dataloader, loss_fn,optimizer, scheduler,device, v
         if evaluation == True:
             # After the completion of each training epoch, measure the model's performance
             # on our validation set.
-            val_loss, val_accuracy,_ = evaluate(model, val_dataloader, device, loss_fn)
+            val_loss, val_accuracy,_ = bert_evaluate(model, val_dataloader, device, loss_fn)
 
             # Print performance over the entire training data
             time_elapsed = time.time() - t0_epoch
@@ -201,12 +236,8 @@ def bert_predict(model, test_dataloader,device):
 
         # Compute logits
         with torch.no_grad():
-
             logits = model(b_input_ids, b_attn_mask)
-
             preds = torch.argmax(logits, dim=1).flatten()
         predictions.extend(preds)
-
-
 
     return predictions
