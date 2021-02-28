@@ -3,12 +3,12 @@ epochs: 100
 lr: 2e-5
 dropout: 0.5
 maxlen: 200
-model_type:   'mvcc_biobert'#att_Bilstm' # elmo_Bilstm 'mvcc_g'#'att_Bilstm' #elmo_Bilstm'#'att_Bilstm' # mvcc_biobert
+model_type:   'mvcc_biobert' # elmo_Bilstm 'mvcc_g' 'att_Bilstm' # mvcc_biobert
 path_to_outputs: 'out.tsv'
-path_to_input: '/home/akkasi/PycharmProjects/BCRE/bcre/data/data1.tsv'
-Oversmpling: 0
+path_to_input: 'data.tsv'
+Oversmpling: 1
 Folds: 10
-hidden_size: 25
+hidden_size: 100
 n_lstm_layers: 2
 bidirectional: True
 n_kernels:
@@ -19,8 +19,9 @@ kernels:
   - 3
   - 4
   - 5
-path_to_pretrainedWE:  '/home/akkasi/PycharmProjects/BCRE/bcre/w2v_glove.6B.100d.txt'
-#'/home/akkasi/pythonProject/fasttext.vec'
+path_to_pretrainedWE:  "pmc-openaccess-w2v.bin"
+#'w2v_glove.6B.100d.txt'
+#'fasttext.vec'
 path_to_model_to_be_saved: '.'
 freeze_embedding: True
 vocab_size: 20000
@@ -31,5 +32,5 @@ bioBertModels:
   -  'dmis-lab/biobert-large-cased-v1.1'
   -  'monologg/biobert_v1.0_pubmed_pmc'
   -  'monologg/biobert_v1.1_pubmed'
-option_file: '/home/akkasi/pythonProject/‌BERT_CNN_TextClassification/elmo_2x4096_512_2048cnn_2xhighway_options.json'
-weight_file: '/home/akkasi/pythonProject/‌BERT_CNN_TextClassification/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5'
+option_file: 'BERT_CNN_TextClassification/elmo_2x4096_512_2048cnn_2xhighway_options.json'
+weight_file: 'BERT_CNN_TextClassification/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5'
