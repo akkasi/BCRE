@@ -54,8 +54,7 @@ class mvccGlove(nn.Module):
 
         # Concatenate x_pool_list to feed the fully connected layer.
         # Output shape: (b, sum(num_filters))
-        x_fc = torch.cat([x_pool.squeeze(dim=2) for x_pool in x_pool_list],
-                         dim=1)
+        x_fc = torch.cat([x_pool.squeeze(dim=2) for x_pool in x_pool_list],dim=1)
 
         # Compute logits. Output shape: (b, n_classes)
         logits = self.fc(self.dropout(x_fc))

@@ -143,7 +143,7 @@ def bert_evaluate(model,  val_dataloader, loss_fn, device):
     val_loss = np.mean(val_loss)
     val_accuracy = np.mean(val_accuracy)
     return val_loss, val_accuracy, Predictions
-def bert_trainer(model, train_dataloader, loss_fn,optimizer, scheduler,device, val_dataloader=None, epochs=4, evaluation=False):
+def bert_trainer(model, train_dataloader, loss_fn,optimizer, scheduler,device, val_dataloader=None, epochs=4):
 # def bert_trainer(model, train_dataloader, loss_fn, optimizer,device, val_dataloader=None, epochs=4,evaluation=False):
     print("Start training...\n")
     for epoch_i in range(epochs):
@@ -193,8 +193,7 @@ def bert_trainer(model, train_dataloader, loss_fn,optimizer, scheduler,device, v
                 time_elapsed = time.time() - t0_batch
 
                 # Print training results
-                print(
-                    f"{epoch_i + 1:^7} | {step:^7} | {batch_loss / batch_counts:^12.6f} | {'-':^10} | {'-':^9} | {time_elapsed:^9.2f}")
+                print(  f"{epoch_i + 1:^7} | {step:^7} | {batch_loss / batch_counts:^12.6f} | {'-':^10} | {'-':^9} | {time_elapsed:^9.2f}")
 
                 # Reset batch tracking variables
                 batch_loss, batch_counts = 0, 0
@@ -207,10 +206,10 @@ def bert_trainer(model, train_dataloader, loss_fn,optimizer, scheduler,device, v
         # =======================================
         #               Evaluation
         # =======================================
-        if evaluation == True:
+        if val_dataloader != None:
             # After the completion of each training epoch, measure the model's performance
             # on our validation set.
-            val_loss, val_accuracy,_ = bert_evaluate(model, val_dataloader, device, loss_fn)
+            val_loss, val_accuracy,_ = bert_evaluate(model, val_dataloader, loss_fn, device)
 
             # Print performance over the entire training data
             time_elapsed = time.time() - t0_epoch

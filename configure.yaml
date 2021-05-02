@@ -1,11 +1,11 @@
 batch_size: 32
-epochs: 100
+epochs: 2
 lr: 2e-5
 dropout: 0.5
 maxlen: 200
 model_type:   'mvcc_biobert' # elmo_Bilstm 'mvcc_g' 'att_Bilstm' # mvcc_biobert
 path_to_outputs: 'out.tsv'
-path_to_input: 'data.tsv'
+path_to_input: '/home/akkasi/pythonProject/‌BERT_CNN_TextClassification/data/data1.tsv'
 Oversmpling: 1
 Folds: 10
 hidden_size: 100
@@ -19,7 +19,8 @@ kernels:
   - 3
   - 4
   - 5
-path_to_pretrainedWE:  "pmc-openaccess-w2v.bin"
+path_to_pretrainedWE:  "/home/akkasi/pythonProject/‌BERT_CNN_TextClassification/w2v_glove.6B.100d.txt"
+#pmc-openaccess-w2v.bin"
 #'w2v_glove.6B.100d.txt'
 #'fasttext.vec'
 path_to_model_to_be_saved: '.'
@@ -28,7 +29,7 @@ vocab_size: 20000
 embed_dim: 100
 num_classes: 3
 bioBertModels:
-  - 'dmis-lab/biobert-v1.1'
+  -  'dmis-lab/biobert-v1.1'
   -  'dmis-lab/biobert-large-cased-v1.1'
   -  'monologg/biobert_v1.0_pubmed_pmc'
   -  'monologg/biobert_v1.1_pubmed'

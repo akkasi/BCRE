@@ -34,7 +34,7 @@ class crossValidation():
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
-
+        print(self.device)
         self.preprocessor = Preprocessing(self.data, config['path_to_pretrainedWE'], config['maxlen'])
         self.data.text, word2idx, _ = self.preprocessor.tokenize()
         self.embedding, self.embed_dim = self.preprocessor.load_pretrained_vectors(word2idx)
@@ -122,8 +122,8 @@ class crossValidation():
 
             bert_trainer(self.model, self.train_loader,
                          self.loss_fn, self.optimizer, self.scheduler,
-                         self.device, val_dataloader= None,
-                         epochs=config['epochs'], evaluation=False)
+                         self.device, val_dataloader= self.train_loader,
+                         epochs=config['epochs'])
 
     def test_model(self):
         if self.model_type in ['elmo_Bilstm', 'att_Bilstm',  'mvcc_g']:
@@ -195,25 +195,28 @@ class crossValidation():
                 self.train_loader = data_loader(train, batch_size=config['batch_size'])
                 self.test_loader = data_loader(test, batch_size=config['batch_size'])
             elif self.model_type == 'mvcc_biobert':
+                print(11111111111111111111111111111111111111)
                 self.train_loader = bert_Dataloader(bertPrep.encode_data(bert_train),bert_train,batch_size=config['batch_size'])
                 self.test_loader = bert_Dataloader(bertPrep.encode_data(bert_test),bert_test,batch_size=config['batch_size'])
 
 
             self.createModel()
+            print(next(self.model.parameters()).is_cuda)
             self.train_model()
             preds = self.test_model()
             self.Predictions.extend(preds)
             i += 1
-
+            
             self.model = None
+            
         #
-        self.writePredictions()
-        self.Evaluate()
+        # self.writePredictions()
+        # self.Evaluate()
 
 crossV = crossValidation(path_to_dataSet = config['path_to_input'], model_type = config['model_type'],
                 path_to_outputs = config['path_to_outputs'], Oversmpling = config['Oversmpling'], Folds = config['Folds'])
 
-crossV.CV()
+# crossV.CV()
 
 
 
