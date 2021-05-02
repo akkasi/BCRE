@@ -3,6 +3,9 @@ from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 
 def Visualization(HiddenVector,ExpectedOutputs, ModelName):
+    # HiddenVector is the the outputs of the softmax layer when the input is a set of randomly selected samples
+    # ExpectedOutputs corrsponds to the real labels of the samples which are randomely selected
+    
     pca = PCA(n_components=20)
     pca_result = pca.fit_transform(HiddenVector)
     print('Variance PCA: {}'.format(np.sum(pca.explained_variance_ratio_)))
