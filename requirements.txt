@@ -6,3 +6,4 @@ PyYAML==5.4.1
 scikit_learn==0.24.1
 pytorch==1.7.1
 allennlp==2.0.1
+spacy==2.3.5

@@ -13,7 +13,9 @@ This repository consists of the codes for different tasks and models:
 1. [crossValidation](crossValidation.py)
 2. [Fine tuning](bioBertFineTuning.py) the BioBERT models
 3. [Random oversampling](oversampling.py)
-4. etc.
+4. [Layer Visualization](Visualization.py)
+5. [ruleBased relation Extraction](ruleBased.py)
+6. etc.
 
 ### Pretrained Word Embedding model
 For the all implemented models, a pretarine [biomedical word emebedding model](https://arizona.app.box.com/s/3n584pmbudbrlysyzltzoinflsyzpk30) is used.
